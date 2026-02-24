@@ -3,27 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ультимативный Парсер Аккаунтов</title>
+    <title>Ultimate Game Parser</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --panel-bg: #1e293b;
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
+            --bg-color: #0b1120;
+            --panel-bg: #111827;
+            --panel-bg-soft: #0f172a;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
             --success: #10b981;
             --success-hover: #059669;
             --danger: #ef4444;
             --danger-hover: #dc2626;
-            --text-main: #f8fafc;
+            --text-main: #e2e8f0;
             --text-muted: #94a3b8;
             --border: #334155;
+            --chip-bg: #1e293b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b 0%, #0b1120 42%);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
@@ -32,305 +34,537 @@
 
         header {
             text-align: center;
-            padding: 20px;
-            background: rgba(30, 41, 59, 0.8);
+            padding: 18px;
             border-bottom: 1px solid var(--border);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
         }
 
         header h1 {
             font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(to right, #60a5fa, #c084fc);
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        header p {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-top: 5px;
-        }
+        header p { color: var(--text-muted); font-size: 14px; margin-top: 6px; }
 
         .container {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
             flex: 1;
             padding: 20px;
-            gap: 20px;
-            max-width: 1400px;
+            gap: 18px;
+            max-width: 1500px;
             margin: 0 auto;
             width: 100%;
         }
 
         .panel {
-            flex: 1;
             display: flex;
             flex-direction: column;
             background: var(--panel-bg);
             border-radius: 12px;
             border: 1px solid var(--border);
             overflow: hidden;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            transition: border-color 0.3s;
+            min-height: 75vh;
         }
 
         .panel.dragover {
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25);
         }
 
         .panel-header {
-            padding: 15px 20px;
+            padding: 14px 16px;
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(15, 23, 42, 0.3);
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.45);
         }
 
         .panel-header h2 { font-size: 16px; font-weight: 600; }
-        
+
         .badge {
-            background: var(--primary);
-            color: white;
+            background: var(--chip-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
             padding: 4px 10px;
-            border-radius: 20px;
+            border-radius: 999px;
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 700;
+            white-space: nowrap;
         }
 
         textarea {
             flex: 1;
             width: 100%;
-            padding: 20px;
+            padding: 16px;
             background: transparent;
             border: none;
             color: var(--text-main);
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 14px;
+            font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.45;
             resize: none;
             outline: none;
-            line-height: 1.5;
         }
-
-        textarea::placeholder { color: #475569; }
 
         .controls {
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 15px;
-            padding: 0 10px;
+            gap: 10px;
+            width: 170px;
         }
 
         button {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            padding: 12px 20px;
-            border: none;
             border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
+            border: none;
             cursor: pointer;
-            transition: all 0.2s;
+            padding: 11px 10px;
+            font-size: 13px;
+            font-weight: 700;
             color: white;
-            width: 100%;
+            transition: all 0.2s;
         }
 
-        button svg { width: 18px; height: 18px; fill: currentColor; }
-        
-        .btn-parse { background-color: var(--primary); }
-        .btn-parse:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
-        
-        .btn-success { background-color: var(--success); }
-        .btn-success:hover { background-color: var(--success-hover); transform: translateY(-1px); }
-        
-        .btn-danger { background-color: var(--danger); background: transparent; border: 1px solid var(--danger); color: var(--danger); }
-        .btn-danger:hover { background-color: var(--danger); color: white; }
+        button svg { width: 16px; height: 16px; fill: currentColor; }
 
-        /* Notification Toast */
+        .btn-parse { background: var(--primary); }
+        .btn-parse:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+        .btn-success { background: var(--success); }
+        .btn-success:hover { background: var(--success-hover); transform: translateY(-1px); }
+
+        .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+        .btn-danger:hover { background: var(--danger); color: white; }
+
+        .output-tools {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: var(--panel-bg-soft);
+        }
+
+        .search-wrap { position: relative; }
+
+        #searchInput {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: #020617;
+            color: var(--text-main);
+            border-radius: 8px;
+            padding: 10px 12px;
+            outline: none;
+            font-size: 13px;
+        }
+
+        #searchInput:focus { border-color: var(--primary); }
+
+        .suggestions {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            z-index: 4;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #020617;
+            max-height: 220px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 8px 10px;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .suggestion-item:hover { background: #1e293b; }
+
+        .results-list {
+            flex: 1;
+            padding: 14px;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .game-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(2, 6, 23, 0.45);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            background: #0f172a;
+        }
+
+        .game-title { font-weight: 700; font-size: 13px; }
+        .game-actions { display: flex; gap: 8px; align-items: center; }
+
+        .small-btn {
+            border: 1px solid #475569;
+            background: transparent;
+            color: #cbd5e1;
+            padding: 6px 8px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .small-btn:hover { border-color: var(--primary); color: white; }
+
+        .acc-list { list-style: none; }
+
+        .acc-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            align-items: center;
+            border-top: 1px dashed rgba(51, 65, 85, 0.6);
+            padding: 8px 12px;
+            font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+            font-size: 12px;
+        }
+
+        .acc-item:first-child { border-top: none; }
+        .acc-actions { display: flex; gap: 6px; }
+        .icon-btn { padding: 4px 7px; font-size: 12px; }
+
         .toast {
             position: fixed;
             bottom: 20px;
             right: 20px;
             background: var(--success);
             color: white;
-            padding: 12px 24px;
+            padding: 11px 16px;
             border-radius: 8px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             transform: translateY(100px);
             opacity: 0;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            font-weight: 600;
+            transition: 0.25s ease;
+            font-weight: 700;
+            z-index: 9;
         }
 
         .toast.show { transform: translateY(0); opacity: 1; }
 
-        @media (max-width: 900px) {
-            .container { flex-direction: column; }
-            .controls { flex-direction: row; flex-wrap: wrap; }
-            button { width: auto; flex: 1; }
+        @media (max-width: 1100px) {
+            .container { grid-template-columns: 1fr; }
+            .controls { width: 100%; flex-direction: row; flex-wrap: wrap; }
+            .controls button { flex: 1; min-width: 160px; }
         }
     </style>
 </head>
 <body>
-
     <header>
-        <h1>Ультимативный Парсер Аккаунтов</h1>
-        <p>Быстрое извлечение баз форматов Login:Pass из любых грязных текстов</p>
+        <h1>Ultimate Game Parser</h1>
+        <p>Эвристическая очистка и структурирование логов в формате Login:Pass прямо в браузере</p>
     </header>
 
     <div class="container">
-        <!-- Левая панель: Ввод -->
-        <div class="panel" id="dropZone">
+        <section class="panel" id="dropZone">
             <div class="panel-header">
-                <h2>Грязная база (Input)</h2>
-                <span class="badge" style="background: var(--border);">Вставьте текст или перетащите .txt файл</span>
+                <h2>Грязный лог</h2>
+                <span class="badge">Drag & Drop .txt поддерживается</span>
             </div>
-            <textarea id="inputText" placeholder="Вставьте ваш дамп с аккаунтами сюда...
-Или просто перетащите текстовый файл прямо в это окно."></textarea>
-        </div>
+            <textarea id="inputText" placeholder="Вставьте сырые данные сюда или перетащите .txt файл..."></textarea>
+        </section>
 
-        <!-- Кнопки управления -->
         <div class="controls">
-            <button class="btn-parse" onclick="processText()">
-                <svg viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                Спарсить базу
-            </button>
-            <button class="btn-success" onclick="copyResult()">
-                <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Копировать
-            </button>
-            <button class="btn-success" style="background-color: #8b5cf6;" onclick="downloadResult()">
-                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                Скачать .txt
-            </button>
-            <button class="btn-danger" onclick="clearAll()">
-                <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                Очистить
-            </button>
+            <button class="btn-parse" onclick="processText()"><svg viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Анализировать</button>
+            <button class="btn-success" onclick="downloadResult()"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Скачать</button>
+            <button class="btn-success" style="background:#0ea5e9" onclick="copyAllStructured()"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Копировать</button>
+            <button class="btn-danger" onclick="clearAll()"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Очистить</button>
         </div>
 
-        <!-- Правая панель: Вывод -->
-        <div class="panel">
+        <section class="panel">
             <div class="panel-header">
-                <h2>Чистый результат (Output)</h2>
-                <span class="badge" id="resultCount">Найдено: 0</span>
+                <h2>Результат</h2>
+                <span class="badge" id="resultCount">Игр: 0 • Акков: 0</span>
             </div>
-            <textarea id="outputText" readonly placeholder="Здесь появится чистый список Login:Pass..."></textarea>
-        </div>
+            <div class="output-tools">
+                <div class="search-wrap">
+                    <input id="searchInput" type="text" placeholder="Поиск игры...">
+                    <div id="suggestions" class="suggestions"></div>
+                </div>
+            </div>
+            <div id="resultsContainer" class="results-list"></div>
+        </section>
     </div>
 
-    <!-- Уведомление -->
-    <div id="toast" class="toast">Успешно!</div>
+    <div id="toast" class="toast">Готово</div>
 
     <script>
-        // Главная функция парсинга (перенос логики из Python)
-        function parseAccounts(text) {
-            // Заменяем разделители "|" на перенос строки
-            let formattedText = text.replace(/\|/g, '\n');
-            let lines = formattedText.split('\n');
-            
-            let results = [];
-            let currentLogin = null;
+        const gameStore = new Map();
+        const DEFAULT_GAME = 'Unknown / Unlabeled';
 
-            // Регулярные выражения (JS эквивалент)
-            // Ищет логин/пароль игнорируя спецсимволы, эмодзи, двоеточия, тире, и захватывает значение до первого пробела
-            const logRegex = /(?:^|[^a-zа-яё0-9_])(логин|login|account|email)[\s:\-—=>👤🔑💠♦️🎄💃⭐️⚙️⚡️✔️✅📌🎮💎👍❗️•»«]*([^\s]+)/i;
-            const passRegex = /(?:^|[^a-zа-яё0-9_])(пароль|pass|password|пасс)[\s:\-—=>👤🔑💠♦️🎄💃⭐️⚙️⚡️✔️✅📌🎮💎👍❗️•»«]*([^\s]+)/i;
+        function isUrl(text) {
+            return /^(https?:\/\/|www\.)/i.test(text);
+        }
+
+        function cleanLine(raw) {
+            let line = raw.replace(/\r/g, '').trim();
+            if (!line) return '';
+            line = line.replace(/^\s*(\d+[\).]|[#*•💠💃⭐️♦️\-]{1,5})\s*/u, '');
+            line = line.replace(/[💠💃⭐️♦️🎮🔑👤📌✔️✅❗️]/gu, '');
+            return line.trim();
+        }
+
+        function isJunkLine(line) {
+            return /^[-=*_~]{3,}$/.test(line) || /^\W{4,}$/.test(line);
+        }
+
+        function normalizeGameName(line) {
+            return line.replace(/^\s*(игры?|games?|библиотека|аккаунт\s*№?)\s*[:\-]?\s*/i, '').trim() || DEFAULT_GAME;
+        }
+
+        function addAccount(game, login, pass) {
+            if (!login || !pass) return;
+            const pair = `${login}:${pass}`;
+            if (!gameStore.has(game)) gameStore.set(game, new Set());
+            gameStore.get(game).add(pair);
+        }
+
+        function parseRawPair(line) {
+            const direct = line.match(/^([^\s:][^:]*)[:]([^\s].+)$/);
+            if (!direct) return null;
+            const login = direct[1].trim();
+            const pass = direct[2].trim();
+            if (!login || !pass) return null;
+            if (isUrl(login) || isUrl(pass)) return null;
+            return { login, pass };
+        }
+
+        function parseAccounts(text) {
+            gameStore.clear();
+            let currentGame = DEFAULT_GAME;
+            let pendingLogin = '';
+
+            const lines = text.replace(/\|/g, '\n').split('\n').map(cleanLine);
+
+            const comboRegex = /^(.*?)(?:\blogin\b|\bлогин\b)\s*[:\-]?\s*([^\s|]+).*?(?:\bpass(?:word)?\b|\bпароль\b|\bпасс\b)\s*[:\-]?\s*(\S+)/i;
+            const loginRegex = /(?:\blogin\b|\bлогин\b|\bemail\b|\baccount\b)\s*[:\-]?\s*(\S+)/i;
+            const passRegex = /(?:\bpass(?:word)?\b|\bпароль\b|\bпасс\b)\s*[:\-]?\s*(\S+)/i;
+            const explicitGameRegex = /^(игры?|games?|библиотека|аккаунт\s*№?)\s*[:\-]?\s*(.+)?$/i;
 
             for (let i = 0; i < lines.length; i++) {
-                let line = lines[i].trim();
-                if (!line) continue;
+                const line = lines[i];
+                if (!line || isJunkLine(line)) continue;
 
-                let mLog = line.match(logRegex);
-                let mPass = line.match(passRegex);
-
-                let logVal = mLog ? mLog[2] : null;
-                let passVal = mPass ? mPass[2] : null;
-
-                // Ситуация 1: Логин и пароль на одной строке
-                if (logVal && passVal) {
-                    results.push(`${logVal}:${passVal}`);
-                    currentLogin = null;
+                const combo = line.match(comboRegex);
+                if (combo) {
+                    const prefix = (combo[1] || '').trim().replace(/[|,:;]+$/, '').trim();
+                    if (prefix && !isUrl(prefix) && !/:\/\//.test(prefix)) {
+                        currentGame = normalizeGameName(prefix);
+                    }
+                    addAccount(currentGame, combo[2], combo[3]);
+                    pendingLogin = '';
                     continue;
                 }
 
-                // Ситуация 2: Нашли только логин
-                if (logVal) {
-                    currentLogin = logVal;
+                const explicitGame = line.match(explicitGameRegex);
+                if (explicitGame) {
+                    currentGame = normalizeGameName(explicitGame[2] || explicitGame[0]);
+                    pendingLogin = '';
                     continue;
                 }
 
-                // Ситуация 3: Нашли пароль (привязываем к прошлому логину)
-                if (passVal) {
-                    if (currentLogin) {
-                        results.push(`${currentLogin}:${passVal}`);
-                        currentLogin = null;
+                const rawPair = parseRawPair(line);
+                if (rawPair) {
+                    addAccount(currentGame, rawPair.login, rawPair.pass);
+                    pendingLogin = '';
+                    continue;
+                }
+
+                const loginMatch = line.match(loginRegex);
+                const passMatch = line.match(passRegex);
+
+                if (loginMatch && passMatch) {
+                    addAccount(currentGame, loginMatch[1], passMatch[1]);
+                    pendingLogin = '';
+                    continue;
+                }
+
+                if (loginMatch) {
+                    pendingLogin = loginMatch[1];
+                    continue;
+                }
+
+                if (passMatch) {
+                    const pass = passMatch[1];
+                    if (!pendingLogin) {
+                        const prev = lines[i - 1] ? lines[i - 1].trim() : '';
+                        if (prev && !isUrl(prev) && !prev.includes(':') && !explicitGameRegex.test(prev)) {
+                            pendingLogin = prev;
+                        }
+                    }
+                    if (pendingLogin) {
+                        addAccount(currentGame, pendingLogin, pass);
+                        pendingLogin = '';
                     }
                     continue;
                 }
+
+                if (!isUrl(line) && !line.includes(':') && line.length > 2) {
+                    currentGame = normalizeGameName(line);
+                    pendingLogin = '';
+                }
+            }
+        }
+
+        function getStructuredText(filteredGames = null) {
+            const source = filteredGames || [...gameStore.keys()];
+            let out = '';
+            source.forEach(game => {
+                const accounts = [...(gameStore.get(game) || [])];
+                if (!accounts.length) return;
+                out += `=== ${game} ===\n`;
+                out += accounts.join('\n') + '\n\n';
+            });
+            return out.trim();
+        }
+
+        function renderResults(filter = '') {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+            const search = filter.trim().toLowerCase();
+            const games = [...gameStore.keys()].filter(g => g.toLowerCase().includes(search));
+
+            games.forEach(game => {
+                const accounts = [...gameStore.get(game)];
+                const card = document.createElement('article');
+                card.className = 'game-card';
+
+                card.innerHTML = `
+                    <div class="game-header">
+                        <div class="game-title">${escapeHtml(game)}</div>
+                        <div class="game-actions">
+                            <span class="badge">${accounts.length}</span>
+                            <button class="small-btn" data-copy-game="${encodeURIComponent(game)}">Copy All</button>
+                        </div>
+                    </div>
+                    <ul class="acc-list"></ul>
+                `;
+
+                const list = card.querySelector('.acc-list');
+                accounts.forEach(pair => {
+                    const [login, ...rest] = pair.split(':');
+                    const pass = rest.join(':');
+                    const li = document.createElement('li');
+                    li.className = 'acc-item';
+                    li.innerHTML = `
+                        <span>${escapeHtml(pair)}</span>
+                        <div class="acc-actions">
+                            <button class="small-btn icon-btn" data-copy="${encodeURIComponent(pair)}">📋</button>
+                            <button class="small-btn icon-btn" data-copy="${encodeURIComponent(login)}">👤</button>
+                            <button class="small-btn icon-btn" data-copy="${encodeURIComponent(pass)}">🔑</button>
+                        </div>
+                    `;
+                    list.appendChild(li);
+                });
+
+                container.appendChild(card);
+            });
+
+            const totalAccounts = games.reduce((n, game) => n + gameStore.get(game).size, 0);
+            document.getElementById('resultCount').innerText = `Игр: ${games.length} • Акков: ${totalAccounts}`;
+        }
+
+        function renderSuggestions(value = '') {
+            const box = document.getElementById('suggestions');
+            const q = value.trim().toLowerCase();
+            if (!q) {
+                box.style.display = 'none';
+                box.innerHTML = '';
+                return;
             }
 
-            // Удаляем дубликаты
-            return [...new Set(results)];
+            const items = [...gameStore.keys()]
+                .filter(g => g.toLowerCase().includes(q))
+                .slice(0, 10)
+                .map(g => `<div class="suggestion-item" data-game="${encodeURIComponent(g)}"><span>${escapeHtml(g)}</span><span>${gameStore.get(g).size}</span></div>`)
+                .join('');
+
+            box.innerHTML = items || '<div class="suggestion-item"><span>Ничего не найдено</span></div>';
+            box.style.display = 'block';
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"]+/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
         }
 
         function processText() {
             const input = document.getElementById('inputText').value;
             if (!input.trim()) {
-                showToast('Вставьте текст для обработки!', true);
+                showToast('Вставьте текст для обработки', true);
                 return;
             }
-
-            const parsed = parseAccounts(input);
-            const output = document.getElementById('outputText');
-            const countBadge = document.getElementById('resultCount');
-
-            if (parsed.length === 0) {
-                output.value = "";
-                countBadge.innerText = "Найдено: 0";
-                showToast('Аккаунты не найдены!', true);
-            } else {
-                output.value = parsed.join('\n');
-                countBadge.innerText = `Найдено: ${parsed.length}`;
-                showToast(`Спарсено ${parsed.length} аккаунтов!`);
-            }
+            const t0 = performance.now();
+            parseAccounts(input);
+            renderResults(document.getElementById('searchInput').value);
+            const elapsed = (performance.now() - t0).toFixed(1);
+            showToast(`Готово за ${elapsed}ms`);
         }
 
-        function copyResult() {
-            const output = document.getElementById('outputText');
-            if (!output.value) {
-                showToast('Нет данных для копирования!', true);
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => showToast('Скопировано')); 
+        }
+
+        function copyAllStructured() {
+            const txt = getStructuredText([...gameStore.keys()]);
+            if (!txt) {
+                showToast('Нет данных для копирования', true);
                 return;
             }
-            navigator.clipboard.writeText(output.value).then(() => {
-                showToast('Скопировано в буфер обмена!');
-            });
+            copyText(txt);
         }
 
         function downloadResult() {
-            const output = document.getElementById('outputText').value;
-            if (!output) {
-                showToast('Нет данных для скачивания!', true);
+            const out = getStructuredText([...gameStore.keys()]);
+            if (!out) {
+                showToast('Нет данных для скачивания', true);
                 return;
             }
-            const blob = new Blob([output], { type: 'text/plain' });
+            const blob = new Blob([out], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'Parsed_Accounts_Result.txt';
+            a.download = 'Ultimate_Game_Parser_Result.txt';
             a.click();
             URL.revokeObjectURL(url);
-            showToast('Файл успешно скачан!');
+            showToast('Файл скачан');
         }
 
         function clearAll() {
             document.getElementById('inputText').value = '';
-            document.getElementById('outputText').value = '';
-            document.getElementById('resultCount').innerText = 'Найдено: 0';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('suggestions').style.display = 'none';
+            gameStore.clear();
+            renderResults();
+            showToast('Очищено');
         }
 
         function showToast(message, isError = false) {
@@ -338,39 +572,66 @@
             toast.innerText = message;
             toast.style.backgroundColor = isError ? 'var(--danger)' : 'var(--success)';
             toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            setTimeout(() => toast.classList.remove('show'), 2200);
         }
 
-        // Поддержка Drag & Drop (Перетаскивание файлов .txt)
+        document.getElementById('resultsContainer').addEventListener('click', e => {
+            const copyVal = e.target.getAttribute('data-copy');
+            if (copyVal) return copyText(decodeURIComponent(copyVal));
+
+            const gameName = e.target.getAttribute('data-copy-game');
+            if (gameName) {
+                const game = decodeURIComponent(gameName);
+                copyText([...(gameStore.get(game) || [])].join('\n'));
+            }
+        });
+
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', e => {
+            const val = e.target.value;
+            renderResults(val);
+            renderSuggestions(val);
+        });
+
+        document.getElementById('suggestions').addEventListener('click', e => {
+            const item = e.target.closest('[data-game]');
+            if (!item) return;
+            const game = decodeURIComponent(item.getAttribute('data-game'));
+            searchInput.value = game;
+            renderResults(game);
+            renderSuggestions(game);
+        });
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.search-wrap')) {
+                document.getElementById('suggestions').style.display = 'none';
+            }
+        });
+
         const dropZone = document.getElementById('dropZone');
         const inputText = document.getElementById('inputText');
 
-        dropZone.addEventListener('dragover', (e) => {
+        dropZone.addEventListener('dragover', e => {
             e.preventDefault();
             dropZone.classList.add('dragover');
         });
 
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
 
-        dropZone.addEventListener('drop', (e) => {
+        dropZone.addEventListener('drop', e => {
             e.preventDefault();
             dropZone.classList.remove('dragover');
-            
             const file = e.dataTransfer.files[0];
-            if (file && (file.type === "text/plain" || file.name.endsWith(".txt"))) {
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    inputText.value = evt.target.result;
-                    processText(); // Сразу парсим после загрузки файла
-                };
-                reader.readAsText(file);
-            } else {
-                showToast('Пожалуйста, загружайте только текстовые файлы (.txt)', true);
+            if (!file || !(file.type === 'text/plain' || file.name.endsWith('.txt'))) {
+                showToast('Нужен .txt файл', true);
+                return;
             }
+            const reader = new FileReader();
+            reader.onload = evt => {
+                inputText.value = evt.target.result;
+                processText();
+            };
+            reader.readAsText(file);
         });
     </script>
 </body>
