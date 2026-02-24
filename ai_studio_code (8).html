@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Combiner & Formatter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #0f172a;
+            --bg-panel: #1e293b;
+            --bg-input: #334155;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #475569;
+        }
+
+        * { box-sizing: border-box; outline: none; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            font-weight: 800;
+            font-size: 2.8rem;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+        h1 span { color: var(--primary); }
+        .subtitle { color: var(--text-muted); font-size: 1rem; margin-top: 8px; }
+
+        /* WORKSPACE GRID */
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: 65vh;
+            min-height: 500px;
+        }
+
+        .panel {
+            background: var(--bg-panel);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .panel-header {
+            padding: 15px 20px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            background: var(--primary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+        }
+        textarea::placeholder { color: #64748b; }
+
+        #output {
+            background: rgba(15, 23, 42, 0.5);
+            color: #e2e8f0;
+        }
+
+        /* CONTROLS */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        button {
+            padding: 16px 32px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 800;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3); }
+
+        .btn-success { background: var(--accent); color: white; }
+        .btn-success:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+
+        .btn-secondary { background: transparent; color: var(--text-muted); border: 2px solid var(--border); }
+        .btn-secondary:hover { border-color: white; color: white; }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: white;
+            color: black;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 800;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        @media (max-width: 900px) {
+            .workspace { grid-template-columns: 1fr; height: auto; }
+            textarea { height: 400px; }
+            .controls { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Group<span>Combiner</span></h1>
+    <div class="subtitle">Интеллектуальное слияние и форматирование разбросанных аккаунтов</div>
+</header>
+
+<div class="container">
+    
+    <div class="workspace">
+        <!-- ЛЕВАЯ ПАНЕЛЬ: ВВОД -->
+        <div class="panel">
+            <div class="panel-header">
+                <div>ВХОДНОЙ ТЕКСТ (ГРЯЗНЫЙ)</div>
+            </div>
+            <textarea id="input" spellcheck="false" placeholder="Вставьте сюда текст с разбросанными играми...&#10;&#10;Например:&#10;🖼 Wallpaper Engine&#10;• Relaxx496:vjM8YHZa3Mm2g17&#10;&#10;Assetto Corsa&#10;• ets2xiajsh:https://playerok.com/profile/QAVIX/products&#10;&#10;🖼 Wallpaper Engine&#10;• fb190792:eLATAMER10"></textarea>
+        </div>
+
+        <!-- ПРАВАЯ ПАНЕЛЬ: ВЫВОД -->
+        <div class="panel">
+            <div class="panel-header">
+                <div>ГОТОВЫЙ РЕЗУЛЬТАТ (ОБЪЕДИНЕННЫЙ)</div>
+                <div class="badge" id="stats">0 групп / 0 аккаунтов</div>
+            </div>
+            <textarea id="output" readonly placeholder="Здесь появится красивый, сгруппированный список..."></textarea>
+        </div>
+    </div>
+
+    <!-- КНОПКИ -->
+    <div class="controls">
+        <button class="btn-primary" onclick="combineAccounts()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            ОБЪЕДИНИТЬ И ОФОРМИТЬ
+        </button>
+        <button class="btn-success" onclick="copyResult()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            СКОПИРОВАТЬ РЕЗУЛЬТАТ
+        </button>
+        <button class="btn-secondary" onclick="clearAll()">
+            ОЧИСТИТЬ
+        </button>
+    </div>
+
+</div>
+
+<div id="toast" class="toast">Скопировано!</div>
+
+<script>
+    // Словарь авто-эмодзи для популярных игр
+    const EMOJI_MAP = {
+        "assetto corsa": "🏎",
+        "wallpaper engine": "🖼",
+        "minecraft": "🧊",
+        "grand theft auto": "🚗",
+        "gta 5": "🚗",
+        "rust": "☢",
+        "cyberpunk": "🤖",
+        "witcher": "🐺",
+        "cs:go": "🔫",
+        "counter-strike": "🔫",
+        "dota": "🧙‍♂️",
+        "red dead redemption": "🤠",
+        "forza horizon": "🏎",
+        "terraria": "🌳",
+        "geometry dash": "🟩",
+        "phasmophobia": "👻",
+        "left 4 dead": "🧟",
+        "dead by daylight": "🔪",
+        "mortal kombat": "🥋",
+        "god of war": "🪓",
+        "spider-man": "🕷",
+        "atomic heart": "🦾",
+        "stalker": "☢",
+        "resident evil": "🧟",
+        "outlast": "📹",
+        "teardown": "🧱",
+        "dayz": "🧟",
+        "euro truck simulator": "🚚",
+        "ark": "🦖",
+        "fifa": "⚽",
+        "ea sports fc": "⚽",
+        "call of duty": "🪖",
+        "battlefield": "🚁",
+        "fallout": "☢",
+        "doom": "👿",
+        "hogwarts": "🪄",
+        "elden ring": "💍",
+        "sims": "🏠",
+        "mario": "🍄"
+    };
+
+    function combineAccounts() {
+        const text = document.getElementById('input').value;
+        if (!text.trim()) {
+            showToast("Вставьте текст для обработки!");
+            return;
+        }
+
+        const lines = text.split(/\r?\n/);
+        const db = new Map(); 
+        
+        let currentNormGame = "разное (сборник)";
+        let currentDisplayName = "🎮 Разное (Сборник)";
+        
+        // Регулярка для проверки, является ли строка аккаунтом: 
+        // Ловит: "• user:pass", "- user:pass", "* user:pass"
+        const bulletAccRegex = /^[\u2022\u25E6\u2043\u2219\-\*•]\s*(.+?):(.*)$/;
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (!line) continue;
+
+            let isAccount = false;
+            let login = "", pass = "";
+
+            // Проверка 1: Наличие маркера (точки) в начале
+            let bulletMatch = line.match(bulletAccRegex);
+            if (bulletMatch) {
+                isAccount = true;
+                login = bulletMatch[1].trim();
+                pass = bulletMatch[2].trim();
+            } else {
+                // Проверка 2: Формат user:pass без маркера
+                let colonIdx = line.indexOf(':');
+                if (colonIdx > 0 && colonIdx < line.length - 1) {
+                    let left = line.substring(0, colonIdx).trim();
+                    let right = line.substring(colonIdx + 1).trim();
+                    
+                    // Условие: слева от двоеточия нет пробелов (или это валидный email).
+                    // Это защищает от ложного срабатывания на названиях типа "Halo: Reach"
+                    if (!left.includes(' ') || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(left)) {
+                        // Защита от ссылок http:
+                        if (!left.toLowerCase().startsWith('http')) {
+                            isAccount = true;
+                            login = left;
+                            pass = right;
+                        }
+                    }
+                }
+            }
+
+            if (isAccount) {
+                // Это аккаунт! Добавляем в текущую игру
+                if (!db.has(currentNormGame)) {
+                    db.set(currentNormGame, {
+                        display: currentDisplayName,
+                        accs: new Set() // Set автоматически удалит полные дубликаты
+                    });
+                }
+                db.get(currentNormGame).accs.add(`• ${login}:${pass}`);
+            } else {
+                // Это название игры!
+                // Нормализуем имя (удаляем стартовые эмодзи для создания уникального ключа)
+                let normGame = line.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}•\-\*\s]+/gu, '').toLowerCase().trim();
+                
+                // Если имя получилось пустым (это был мусор), пропускаем
+                if(!normGame) continue;
+
+                currentNormGame = normGame;
+
+                // Если такой игры еще не было, украшаем её эмодзи
+                if (!db.has(currentNormGame)) {
+                    currentDisplayName = enhanceGameName(line, normGame);
+                    db.set(currentNormGame, {
+                        display: currentDisplayName,
+                        accs: new Set()
+                    });
+                } else {
+                    // Если игра уже есть в базе, просто переключаем контекст на неё
+                    currentDisplayName = db.get(currentNormGame).display;
+                }
+            }
+        }
+
+        // --- ГЕНЕРАЦИЯ ВЫВОДА ---
+        let result = [];
+        let totalGames = 0;
+        let totalAccs = 0;
+
+        for (let [normKey, data] of db.entries()) {
+            if (data.accs.size > 0) {
+                result.push(data.display);
+                result.push(Array.from(data.accs).join('\n'));
+                result.push(''); // Пустая строка между блоками (ОТСТУП)
+                
+                totalGames++;
+                totalAccs += data.accs.size;
+            }
+        }
+
+        const outputText = result.join('\n').trim();
+        document.getElementById('output').value = outputText;
+        document.getElementById('stats').innerText = `${totalGames} групп / ${totalAccs} акк`;
+
+        if(totalAccs === 0) {
+            showToast("Не удалось найти аккаунты в тексте");
+        }
+    }
+
+    // Функция добавления/сохранения эмодзи
+    function enhanceGameName(originalLine, normName) {
+        // Проверяем, есть ли уже эмодзи в начале строки
+        const hasEmoji = /^[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u.test(originalLine);
+        if (hasEmoji) return originalLine; // Оставляем авторский эмодзи
+
+        // Ищем в словаре
+        let foundEmoji = "🎮"; // Эмодзи по умолчанию
+        for (let key in EMOJI_MAP) {
+            if (normName.includes(key)) {
+                foundEmoji = EMOJI_MAP[key];
+                break;
+            }
+        }
+        
+        return `${foundEmoji} ${originalLine}`;
+    }
+
+    function copyResult() {
+        const out = document.getElementById('output').value;
+        if (!out) {
+            showToast("Нет результата для копирования");
+            return;
+        }
+        navigator.clipboard.writeText(out).then(() => {
+            showToast("Скопировано!");
+        });
+    }
+
+    function clearAll() {
+        document.getElementById('input').value = "";
+        document.getElementById('output').value = "";
+        document.getElementById('stats').innerText = "0 групп / 0 аккаунтов";
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2000);
+    }
+</script>
+
+</body>
+</html>
